@@ -9,7 +9,7 @@ module.exports = (sequelize, DataTypes) => {
     materialsNeeded: DataTypes.STRING
   }, {});
   Course.associate = function(models) {
-    // associations can be defined here
+    Course.BelongsTo(models.User);
   };
   return Course;
 };
