@@ -1,12 +1,45 @@
-'use strict';
-module.exports = (sequelize, DataTypes) => {
-  const User = sequelize.define('User', {
-    id: DataTypes.INTEGER,
-    firstName: DataTypes.STRING,
-    lastName: DataTypes.STRING,
-    emailAddress: DataTypes.STRING,
-    password: DataTypes.STRING
-  }, {});
+const Sequelize = require('sequelize');
+
+
+//Initialize User
+module.exports = (sequelize) => {
+  class User extends Sequelize.Model {}
+  User.init({
+    id: {
+      type: Sequelize.INTEGER,
+      primaryKey: true,
+      autoIncrement: true,
+    },
+    firstName: {
+      type: Sequelize.STRING,
+      allowNull: false,
+      validate: {
+        notEmpty: true,
+      }
+    },
+    lastName: {
+      type: Sequelize.STRING, 
+      allowNull: false,
+      validate: {
+        notEmpty: true
+      }
+    },
+    emailAddress: {
+      type: Sequelize.STRING,
+      allowNull: false,
+      validate: {
+        notEmpty: true,
+        isEmail: true
+      }
+    },
+    password: {
+      type: Sequelize.STRING,
+      allowNull: false,
+      validate: {
+        notEmpty: true
+      }
+    },
+  }, { sequelize });
   User.associate = function(models) {
     User.HasMany(models.Course);
   };
