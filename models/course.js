@@ -31,9 +31,13 @@ module.exports = (sequelize) => {
       type: Sequelize.STRING,
       allowNull: true,
     },
+    userId:  {
+      type: Sequelize.STRING,
+      allowNull: false,
+    }
   }, { sequelize });
   Course.associate = function(models) {
-    Course.BelongsTo(models.User);
+    Course.belongsTo(models.User);
   };
   return Course;
 };

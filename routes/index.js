@@ -1,7 +1,5 @@
 'use strict';
 
-// add routes 
-app.use('/api', routes);
 
 const express = require('express');
 
@@ -14,16 +12,17 @@ const router = express.Router();
 // user authentication
 const authenticateUser = require('../auth'); 
 
-// models from the database
-const { models } = require('../db');
+const sequelize = require('../models');
 
 // user and course models
-const { User, Course } = models;
+const { User, Course } = require('../models');
 
 // password hashing
 const bcryptjs = require('bcryptjs');
 
 // USERS ROUTES
+  
+
 // retrieves a list of user accounts and returns it as JSON
 router.get('/users', authenticateUser, (req, res, next) => {
     try {
@@ -42,12 +41,12 @@ router.get('/users', authenticateUser, (req, res, next) => {
 router.post('/users', async (req, res, next) => {
     try {
         const user = req.body; //get the user from request body
-      if (user.password) {
+      if (user && user.password) {
         user.password = bcryptjs.hashSync(user.password);
         await User.create(user);
         res.location('/').status(201).end();
       } else {
-        const error = new Error("Invalid  user information provided");
+        const error = new Error("Invalid user information provided");
         error.status = 400;
         next(error);
       }
@@ -58,16 +57,28 @@ router.post('/users', async (req, res, next) => {
         error.errors = errors;
         console.error('Validation errors: ', errors)
         next(error);
+      } else if (error.name === 'SequelizeUniqueConstraintError'){
+        const errors = new Error("Please provide a valid email address");
+        error.status = 400;
+        next(error);
       } else {
         next(error);
       }
     }
 });
-router.post('/users', (req, res) => {
-    const user = req.body; //get the user from request body
-    users.push(user);  //add the user to the `users` array
-    res.status(201).end(); //Set the status to 201 created and end the response
-});
+// router.post('/users', asyncHandler(async (req, res) => {
+//   if(req.body.password) {
+//     req.body.password = await bcryptjs.hashSync(req.body.password);
+//     const user = await User.create(req.body);
+//   } else {
+//     const user = await User.create(req.body);
+//   }
+//     res.location('/');
+//     res.status(201).end();
+//   })
+// );
+
+
 
 //COURSES ROUTES
 //Retrieves a list of courses and users who own each course
@@ -113,7 +124,7 @@ router.get('/courses/:id', async (req, res, next) => {
       if (course) {
         res.status(200).json(course);
       } else {
-        const err = new Error('Course Does-Not-Exist');
+        const err = new Error('Course Not Found');
         err.status = 404;
         next(err);
       }
